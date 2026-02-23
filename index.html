@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0078D4">
+  <title>SITELLO - Monitoring System</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Loading Screen */
+    #loadingScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s;
+    }
+
+    #loadingScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: bold;
+      color: #0078D4;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      margin-bottom: 30px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .loading-text {
+      color: white;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255,255,255,0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Login Container */
+    #loginContainer {
+      display: none;
+      width: 100%;
+      max-width: 420px;
+      padding: 20px;
+    }
+
+    #loginContainer.show {
+      display: block;
+      animation: slideUp 0.5s;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-card {
+      background: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 40px 30px;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .login-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #0078D4, #005a9e);
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 15px rgba(0,120,212,0.3);
+    }
+
+    .login-title {
+      font-size: 24px;
+      color: #333333;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .login-subtitle {
+      font-size: 14px;
+      color: #666666;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      color: #333333;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #E1E1E1;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: all 0.3s;
+      background: #F9F9F9;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #0078D4;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(0,120,212,0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0078D4, #005a9e);
+      color: white;
+      box-shadow: 0 4px 15px rgba(0,120,212,0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,120,212,0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      background: #C0C0C0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      background: #FFF3F3;
+      border: 1px solid #F44336;
+      color: #F44336;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loadingScreen">
+    <div class="logo">ST</div>
+    <div class="loading-text">SITELLO</div>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Login Container -->
+  <div id="loginContainer">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">ST</div>
+        <h1 class="login-title">SITELLO</h1>
+        <p class="login-subtitle">Monitoring & Pendataan System</p>
+      </div>
+
+      <div id="errorMessage" class="error-message"></div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label" for="userId">User ID</label>
+          <input 
+            type="text" 
+            id="userId" 
+            class="form-input" 
+            placeholder="Masukkan User ID"
+            required
+            autocomplete="username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-input" 
+            placeholder="Masukkan Password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="loginBtn">
+          Login
+        </button>
+      </form>
+    </div>
+
+    <p class="footer-text">© 2025 SITELLO. All rights reserved.</p>
+  </div>
+
+  <script>
+    // Simulasi loading screen
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('loginContainer').classList.add('show');
+      }, 2000);
+    });
+
+    // Login form handler
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userId = document.getElementById('userId').value.trim();
+      const password = document.getElementById('password').value;
+      const loginBtn = document.getElementById('loginBtn');
+      const errorMsg = document.getElementById('errorMessage');
+
+      // Disable button
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Loading...';
+      errorMsg.classList.remove('show');
+
+      try {
+        // Call Google Apps Script function
+        const response = await fetch('YOUR_APPS_SCRIPT_URL', {
+          method: 'POST',
+          body: JSON.stringify({ userId, password, action: 'login' }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Save session
+          localStorage.setItem('sitello_user', JSON.stringify(result.user));
+          
+          // Redirect based on role
+          window.location.href = `dashboard.html?role=${result.user.role}`;
+        } else {
+          errorMsg.textContent = result.message || 'User ID atau Password salah!';
+          errorMsg.classList.add('show');
+        }
+      } catch (error) {
+        errorMsg.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+        errorMsg.classList.add('show');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+      }
+    });
+
+    // PWA Install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // Bisa tambahkan button "Install App" di sini
+    });
+  </script>
+</body>
+</html>

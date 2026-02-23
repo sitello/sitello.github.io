@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checker Input - SITELLO</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #F0F0F0;
+      min-height: 100vh;
+    }
+
+    /* Force landscape orientation styling */
+    @media screen and (orientation: portrait) {
+      body::before {
+        content: '📱 Putar layar ke LANDSCAPE untuk input checker';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        padding: 30px;
+        z-index: 10000;
+      }
+
+      .main-content {
+        display: none;
+      }
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #0078D4, #005a9e);
+      color: white;
+      padding: 12px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Date Selector */
+    .date-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .date-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .date-input {
+      padding: 10px 15px;
+      border: 2px solid #E1E1E1;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #F9F9F9;
+      cursor: pointer;
+    }
+
+    .date-input:focus {
+      outline: none;
+      border-color: #0078D4;
+      background: white;
+    }
+
+    /* Checker Form Grid */
+    .checker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .checker-card {
+      background: white;
+      padding: 18px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-left: 4px solid #0078D4;
+    }
+
+    .checker-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checker-icon {
+      font-size: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-group-inline {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label-small {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-input-small {
+      padding: 8px 10px;
+      border: 2px solid #E1E1E1;
+      border-radius: 4px;
+      font-size: 13px;
+      background: #F9F9F9;
+      font-family: inherit;
+    }
+
+    .form-input-small:focus {
+      outline: none;
+      border-color: #0078D4;
+      background: white;
+    }
+
+    .form-select-small {
+      padding: 8px 10px;
+      border: 2px solid #E1E1E1;
+      border-radius: 4px;
+      font-size: 13px;
+      background: #F9F9F9;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .form-select-small:focus {
+      outline: none;
+      border-color: #0078D4;
+      background: white;
+    }
+
+    .condition-select {
+      grid-column: 1 / -1;
+    }
+
+    .notes-input {
+      grid-column: 1 / -1;
+      min-height: 50px;
+      resize: vertical;
+    }
+
+    /* Status Indicator */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-filled {
+      background: #E8F5E9;
+      color: #4CAF50;
+    }
+
+    .status-empty {
+      background: #FFF3E0;
+      color: #FF9800;
+    }
+
+    /* Action Buttons */
+    .action-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      bottom: 20px;
+    }
+
+    .progress-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .progress-text {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .progress-count {
+      font-size: 20px;
+      font-weight: bold;
+      color: #0078D4;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-save {
+      background: #E1E1E1;
+      color: #333;
+    }
+
+    .btn-save:hover {
+      background: #C0C0C0;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #4CAF50, #388E3C);
+      color: white;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-submit:disabled {
+      background: #C0C0C0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Time Warning */
+    .time-warning {
+      background: #FFF3E0;
+      border: 2px solid #FF9800;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .time-warning.show {
+      display: block;
+    }
+
+    .time-warning-text {
+      font-size: 14px;
+      color: #F57C00;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    .loading-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(0,120,212,0.3);
+      border-top: 4px solid #0078D4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) and (orientation: landscape) {
+      .checker-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .action-section {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <div class="header-title">Input Checker Harian</div>
+    </div>
+    <div class="user-info">
+      <span id="userName">Chunin User</span> | <span id="currentTime">--:--</span>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <div>Menyimpan data...</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Time Warning -->
+    <div class="time-warning" id="timeWarning">
+      <div class="time-warning-text">
+        ⚠️ Sudah melewati deadline (19:00). Anda perlu approval admin untuk submit data.
+      </div>
+    </div>
+
+    <!-- Date Section -->
+    <div class="date-section">
+      <div class="date-label">Tanggal Pengecekan:</div>
+      <input type="date" class="date-input" id="checkDate" required>
+    </div>
+
+    <!-- Checker Items Grid -->
+    <form id="checkerForm">
+      <div class="checker-grid" id="checkerGrid">
+        <!-- Dynamically populated from Google Sheets -->
+      </div>
+
+      <!-- Action Section -->
+      <div class="action-section">
+        <div class="progress-info">
+          <div>
+            <div class="progress-text">Progress:</div>
+            <div class="progress-count"><span id="filledCount">0</span> / <span id="totalCount">0</span></div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-save" onclick="saveDraft()">
+            💾 Simpan Draft
+          </button>
+          <button type="submit" class="btn btn-submit" id="submitBtn">
+            ✅ Submit & Apply
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Get user data
+    const userData = JSON.parse(localStorage.getItem('sitello_user') || '{}');
+    if (!userData.userId || userData.role !== 'chunin') {
+      window.location.href = 'index.html';
+    }
+
+    document.getElementById('userName').textContent = userData.name || userData.userId;
+
+    // Set default date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('checkDate').value = today;
+
+    // Update current time
+    function updateTime() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
+
+      // Show warning if past deadline
+      if (hours < 7 || hours >= 19) {
+        document.getElementById('timeWarning').classList.add('show');
+      }
+    }
+    updateTime();
+    setInterval(updateTime, 60000);
+
+    // Load checker items from Google Sheets
+    async function loadCheckerItems() {
+      try {
+        // Get user's assigned datasheet
+        const response = await fetch('YOUR_APPS_SCRIPT_URL', {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'getCheckerItems',
+            userId: userData.userId
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          renderCheckerItems(result.items);
+        } else {
+          alert('Gagal memuat data checker: ' + result.message);
+        }
+      } catch (error) {
+        alert('Terjadi kesalahan: ' + error.message);
+      }
+    }
+
+    // Render checker items
+    function renderCheckerItems(items) {
+      const grid = document.getElementById('checkerGrid');
+      grid.innerHTML = '';
+
+      items.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'checker-card';
+        card.innerHTML = `
+          <div class="checker-title">
+            <span class="checker-icon">${item.icon || '📝'}</span>
+            <span>${item.name}</span>
+            <span class="status-indicator status-empty" id="status_${index}">Belum diisi</span>
+          </div>
+          <div class="form-row condition-select">
+            <div class="form-group-inline">
+              <label class="form-label-small">Kondisi</label>
+              <select class="form-select-small" name="condition_${index}" required onchange="updateProgress()">
+                <option value="">-- Pilih --</option>
+                <option value="baik">✅ Baik</option>
+                <option value="tidak_baik">❌ Tidak Baik</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group-inline">
+              <label class="form-label-small">Jumlah Unit</label>
+              <input type="number" class="form-input-small" name="quantity_${index}" placeholder="0" min="0" required onchange="updateProgress()">
+            </div>
+            <div class="form-group-inline">
+              <label class="form-label-small">Status</label>
+              <input type="text" class="form-input-small" name="status_${index}" placeholder="Optional" onchange="updateProgress()">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group-inline">
+              <label class="form-label-small">Keterangan (Optional)</label>
+              <textarea class="form-input-small notes-input" name="notes_${index}" placeholder="Tambahkan catatan jika perlu"></textarea>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Update total count
+      document.getElementById('totalCount').textContent = items.length;
+
+      // Load draft if exists
+      loadDraft();
+    }
+
+    // Update progress
+    function updateProgress() {
+      const form = document.getElementById('checkerForm');
+      const selects = form.querySelectorAll('select[name^="condition_"]');
+      let filled = 0;
+
+      selects.forEach((select, index) => {
+        if (select.value) {
+          filled++;
+          const statusEl = document.getElementById(`status_${index}`);
+          if (statusEl) {
+            statusEl.textContent = 'Terisi';
+            statusEl.className = 'status-indicator status-filled';
+          }
+        } else {
+          const statusEl = document.getElementById(`status_${index}`);
+          if (statusEl) {
+            statusEl.textContent = 'Belum diisi';
+            statusEl.className = 'status-indicator status-empty';
+          }
+        }
+      });
+
+      document.getElementById('filledCount').textContent = filled;
+    }
+
+    // Save draft
+    function saveDraft() {
+      const formData = new FormData(document.getElementById('checkerForm'));
+      const draft = {};
+      
+      for (let [key, value] of formData.entries()) {
+        draft[key] = value;
+      }
+
+      localStorage.setItem('sitello_checker_draft', JSON.stringify(draft));
+      alert('✅ Draft berhasil disimpan!');
+    }
+
+    // Load draft
+    function loadDraft() {
+      const draft = localStorage.getItem('sitello_checker_draft');
+      if (!draft) return;
+
+      const data = JSON.parse(draft);
+      const form = document.getElementById('checkerForm');
+
+      for (let [key, value] of Object.entries(data)) {
+        const input = form.elements[key];
+        if (input) {
+          input.value = value;
+        }
+      }
+
+      updateProgress();
+    }
+
+    // Submit form
+    document.getElementById('checkerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const checkDate = document.getElementById('checkDate').value;
+      const formData = new FormData(e.target);
+      
+      const checkItems = [];
+      const totalItems = parseInt(document.getElementById('totalCount').textContent);
+
+      for (let i = 0; i < totalItems; i++) {
+        const condition = formData.get(`condition_${i}`);
+        const quantity = formData.get(`quantity_${i}`);
+        
+        if (condition && quantity) {
+          checkItems.push({
+            index: i,
+            condition,
+            quantity,
+            status: formData.get(`status_${i}`) || '',
+            notes: formData.get(`notes_${i}`) || ''
+          });
+        }
+      }
+
+      if (checkItems.length === 0) {
+        alert('⚠️ Minimal harus mengisi 1 item checker!');
+        return;
+      }
+
+      // Show loading
+      document.getElementById('loadingOverlay').classList.add('show');
+
+      try {
+        const response = await fetch('YOUR_APPS_SCRIPT_URL', {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'submitCheckerData',
+            userId: userData.userId,
+            checkDate,
+            checkItems
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert('✅ Data berhasil disubmit dan menunggu approval!');
+          localStorage.removeItem('sitello_checker_draft');
+          window.location.href = 'dashboard-chunin.html';
+        } else if (result.needsApproval) {
+          if (confirm('⚠️ ' + result.message + '\n\nKirim request approval ke Admin?')) {
+            // Send approval request
+            await sendApprovalRequest();
+          }
+        } else {
+          alert('❌ Gagal submit data: ' + result.message);
+        }
+      } catch (error) {
+        alert('❌ Terjadi kesalahan: ' + error.message);
+      } finally {
+        document.getElementById('loadingOverlay').classList.remove('show');
+      }
+    });
+
+    // Send approval request
+    async function sendApprovalRequest() {
+      // Implementation for sending approval request to admin
+      alert('Request approval telah dikirim ke Admin!');
+    }
+
+    // Back button
+    function goBack() {
+      if (confirm('Yakin ingin kembali? Data yang belum disimpan akan hilang.')) {
+        window.history.back();
+      }
+    }
+
+    // Load items on page load
+    loadCheckerItems();
+  </script>
+</body>
+</html>

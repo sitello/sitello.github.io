@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifikasi - SITELLO</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #F0F0F0;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #0078D4, #005a9e);
+      color: white;
+      padding: 15px 25px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 25px;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .stat-icon.unread {
+      background: linear-gradient(135deg, #F44336, #D32F2F);
+    }
+
+    .stat-icon.total {
+      background: linear-gradient(135deg, #0078D4, #005a9e);
+    }
+
+    .stat-info {
+      flex: 1;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    /* Filter Tabs */
+    .filter-tabs {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #E1E1E1;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+      color: #666;
+    }
+
+    .filter-btn:hover {
+      border-color: #0078D4;
+      color: #0078D4;
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, #0078D4, #005a9e);
+      border-color: #0078D4;
+      color: white;
+    }
+
+    .mark-all-btn {
+      margin-left: auto;
+      background: #E1E1E1;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .mark-all-btn:hover {
+      background: #C0C0C0;
+    }
+
+    /* Notifications List */
+    .notifications-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .notif-item {
+      background: white;
+      padding: 18px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+      border-left: 4px solid #E1E1E1;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .notif-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .notif-item.unread {
+      border-left-color: #0078D4;
+      background: #F0F8FF;
+    }
+
+    .notif-item.submit {
+      border-left-color: #4CAF50;
+    }
+
+    .notif-item.approve {
+      border-left-color: #2196F3;
+    }
+
+    .notif-item.reject {
+      border-left-color: #F44336;
+    }
+
+    .notif-item.user_added {
+      border-left-color: #9C27B0;
+    }
+
+    .notif-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .notif-icon.submit {
+      background: #E8F5E9;
+      color: #4CAF50;
+    }
+
+    .notif-icon.approve {
+      background: #E3F2FD;
+      color: #2196F3;
+    }
+
+    .notif-icon.reject {
+      background: #FFEBEE;
+      color: #F44336;
+    }
+
+    .notif-icon.user_added {
+      background: #F3E5F5;
+      color: #9C27B0;
+    }
+
+    .notif-icon.late_request {
+      background: #FFF3E0;
+      color: #FF9800;
+    }
+
+    .notif-content {
+      flex: 1;
+    }
+
+    .notif-message {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .notif-item.unread .notif-message {
+      font-weight: 600;
+    }
+
+    .notif-meta {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .notif-time {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .notif-user {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .notif-badge {
+      background: #0078D4;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .notif-item.unread .notif-badge {
+      background: #F44336;
+    }
+
+    /* Empty State */
+    .empty-state {
+      background: white;
+      padding: 60px 30px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .empty-text {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .empty-subtext {
+      font-size: 13px;
+      color: #999;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(0,120,212,0.3);
+      border-top: 4px solid #0078D4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-tabs {
+        flex-direction: column;
+      }
+
+      .mark-all-btn {
+        margin-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <div class="header-title">🔔 Notifikasi</div>
+    </div>
+  </div>
+
+  <!-- Container -->
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-icon unread">🔔</div>
+        <div class="stat-info">
+          <div class="stat-label">Belum Dibaca</div>
+          <div class="stat-value" id="unreadCount">0</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon total">📊</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Notifikasi</div>
+          <div class="stat-value" id="totalCount">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-tabs">
+      <button class="filter-btn active" data-filter="all">Semua</button>
+      <button class="filter-btn" data-filter="unread">Belum Dibaca</button>
+      <button class="filter-btn" data-filter="submit">Submit Data</button>
+      <button class="filter-btn" data-filter="approve">Approval</button>
+      <button class="filter-btn" data-filter="reject">Reject</button>
+      <button class="filter-btn" data-filter="user_added">User Baru</button>
+      <button class="mark-all-btn" onclick="markAllAsRead()">✓ Tandai Semua Dibaca</button>
+    </div>
+
+    <!-- Notifications List -->
+    <div id="notificationsList">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>Memuat notifikasi...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let notifications = [];
+    let currentFilter = 'all';
+
+    // Load notifications
+    async function loadNotifications() {
+      try {
+        const response = await fetch('YOUR_APPS_SCRIPT_URL', {
+          method: 'POST',
+          body: JSON.stringify({ action: 'getNotifications' })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          notifications = result.notifications;
+          updateStats();
+          renderNotifications();
+        }
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+        showError();
+      }
+    }
+
+    // Update stats
+    function updateStats() {
+      const unread = notifications.filter(n => !n.read).length;
+      document.getElementById('unreadCount').textContent = unread;
+      document.getElementById('totalCount').textContent = notifications.length;
+    }
+
+    // Render notifications
+    function renderNotifications() {
+      const container = document.getElementById('notificationsList');
+      
+      let filtered = notifications;
+      
+      // Apply filter
+      if (currentFilter === 'unread') {
+        filtered = notifications.filter(n => !n.read);
+      } else if (currentFilter !== 'all') {
+        filtered = notifications.filter(n => n.type === currentFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div class="empty-text">Tidak ada notifikasi</div>
+            <div class="empty-subtext">Notifikasi akan muncul di sini saat ada aktivitas baru</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '<div class="notifications-list"></div>';
+      const listEl = container.querySelector('.notifications-list');
+
+      filtered.forEach(notif => {
+        const item = createNotificationItem(notif);
+        listEl.appendChild(item);
+      });
+    }
+
+    // Create notification item
+    function createNotificationItem(notif) {
+      const div = document.createElement('div');
+      div.className = `notif-item ${notif.type} ${notif.read ? '' : 'unread'}`;
+      div.onclick = () => markAsRead(notif.notifId);
+
+      const icon = getNotificationIcon(notif.type);
+      const timeAgo = getTimeAgo(new Date(notif.timestamp));
+
+      div.innerHTML = `
+        <div class="notif-icon ${notif.type}">${icon}</div>
+        <div class="notif-content">
+          <div class="notif-message">${notif.message}</div>
+          <div class="notif-meta">
+            <span class="notif-time">🕐 ${timeAgo}</span>
+            ${notif.userId ? `<span class="notif-user">👤 ${notif.userId}</span>` : ''}
+            ${!notif.read ? '<span class="notif-badge">Baru</span>' : ''}
+          </div>
+        </div>
+      `;
+
+      return div;
+    }
+
+    // Get notification icon
+    function getNotificationIcon(type) {
+      const icons = {
+        submit: '📝',
+        approve: '✅',
+        reject: '❌',
+        user_added: '👤',
+        datasheet_added: '📊',
+        late_request: '⏰'
+      };
+      return icons[type] || '🔔';
+    }
+
+    // Get time ago
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      
+      if (seconds < 60) return 'Baru saja';
+      if (seconds < 3600) return Math.floor(seconds / 60) + ' menit lalu';
+      if (seconds < 86400) return Math.floor(seconds / 3600) + ' jam lalu';
+      if (seconds < 604800) return Math.floor(seconds / 86400) + ' hari lalu';
+      
+      return date.toLocaleDateString('id-ID');
+    }
+
+    // Mark as read
+    async function markAsRead(notifId) {
+      try {
+        const response = await fetch('YOUR_APPS_SCRIPT_URL', {
+          method: 'POST',
+          body: JSON.stringify({ 
+            action: 'markNotificationAsRead',
+            notifId 
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Update local data
+          const notif = notifications.find(n => n.notifId === notifId);
+          if (notif) {
+            notif.read = true;
+            updateStats();
+            renderNotifications();
+          }
+        }
+      } catch (error) {
+        console.error('Error marking notification:', error);
+      }
+    }
+
+    // Mark all as read
+    async function markAllAsRead() {
+      if (!confirm('Tandai semua notifikasi sebagai sudah dibaca?')) return;
+
+      const unread = notifications.filter(n => !n.read);
+      
+      for (let notif of unread) {
+        await markAsRead(notif.notifId);
+      }
+
+      alert('✅ Semua notifikasi ditandai sudah dibaca!');
+    }
+
+    // Filter tabs
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderNotifications();
+      });
+    });
+
+    // Show error
+    function showError() {
+      document.getElementById('notificationsList').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⚠️</div>
+          <div class="empty-text">Gagal memuat notifikasi</div>
+          <div class="empty-subtext">Silakan refresh halaman</div>
+        </div>
+      `;
+    }
+
+    // Back button
+    function goBack() {
+      window.history.back();
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadNotifications, 30000);
+
+    // Initial load
+    loadNotifications();
+  </script>
+</body>
+</html>
